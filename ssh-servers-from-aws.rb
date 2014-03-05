@@ -17,8 +17,7 @@ secret_access_key = config.match(/AWS_SECRET_KEY=(.+)/)[1]
 
 # Add more regions here if necessary. No harm in adding all of them, just makes the generation take longer to query more regions.
 regions = [
-  'us-east-1',
-  'us-west-2'
+  'us-west-1'
 ]
 
 ssh_config = ''
@@ -30,12 +29,12 @@ regions.each do |region|
   ec2.instances.each do |instance|
     if(instance.status == :running && instance.tags['Name'])
       instance_name = instance.tags['Name'].gsub /[^a-zA-Z0-9\-_\.]/, '-'
-      instance_user = instance.tags['User'] || 'ubuntu'
+      instance_user = instance.tags['User'] || 'ec2-user'
       puts "#{instance.id}: #{instance_name} #{instance.ip_address} (#{instance_user})"
       ssh_config << "Host #{instance_name}\n"
       ssh_config << "  HostName #{instance.ip_address}\n"
       ssh_config << "  User #{instance_user}\n"
-      ssh_config << "  IdentityFile ~/.ssh/#{instance.key_name}.aws.pem\n"
+      ssh_config << "  IdentityFile ~/.ssh/#{instance.key_name}.pem\n"
       ssh_config << "\n"
     end
   end
